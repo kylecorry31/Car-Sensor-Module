@@ -1,10 +1,10 @@
-#include "UltrasonicSensor.h"
+#include <NewPing.h>
 #ifndef LED_H
 #include "LED.h"
 #endif
 #include "LEDDistanceDisplay.h"
 
-UltrasonicSensor frontUltrasonic(9, 10);
+NewPing frontSonar(9, 10);
 
 // Create the front display
 LED frontLEDs[] = { LED(2) };
@@ -18,6 +18,6 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  float frontDistance = frontUltrasonic.distance();
+  float frontDistance = frontSonar.ping_in();
   frontDisplay.update(frontDistance);
 }
