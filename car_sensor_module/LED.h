@@ -1,3 +1,4 @@
+#ifndef LED_H
 #define LED_H
 
 
@@ -19,5 +20,15 @@ public:
   void off(){
     digitalWrite(_pin, LOW);
   }
+
+  void set(bool isOn){
+    if (isOn){
+      on();  
+    } else {
+      off();
+    }
+  }
   
 };
+
+#endif

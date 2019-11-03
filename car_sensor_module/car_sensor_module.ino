@@ -1,32 +1,47 @@
 #include "UltrasonicSensor.h"
-#ifndef LED_H
+#include "ProximitySensor.h"
 #include "LED.h"
-#endif
+#include <NewPing.h>
 
-UltrasonicSensor leftSonar(9, 10);
-UltrasonicSensor rightSonar(11, 12);
+#define LEFT_TRIGGER_PIN 10
+#define LEFT_ECHO_PIN 10
+#define RIGHT_TRIGGER_PIN 9
+#define RIGHT_ECHO_PIN 9
+#define LEFT_LED_PIN 5
+#define RIGHT_LED_PIN 6
 
-LED leftIndicator(5);
-LED rightIndicator(6);
+#define INDICATOR_THRESHOLD (12.0f * 5.0f)
 
-const float INDICATOR_THRESHOLD = 60.0f;
+NewPing leftUltrasonic(LEFT_TRIGGER_PIN, LEFT_ECHO_PIN);
+NewPing rightUltrasonic(RIGHT_TRIGGER_PIN, RIGHT_TRIGGER_PIN);
+
+LED leftIndicator(LEFT_LED_PIN);
+LED rightIndicator(RIGHT_LED_PIN);
 
 void setup() {
+  Serial.begin(9600);
 }
 
 void loop() {
-  float leftDistance = leftSonar.average_distance(5);//leftSonar.convert_in(leftSonar.ping_median());
-  float rightDistance = rightSonar.average_distance(5);//convert_in(rightSonar.ping_median());
+  float leftDuration = leftUltrasonic.ping_median();
+  float rightDuration = rightUltrasonic.ping_median();
 
-  if (leftDistance <= INDICATOR_THRESHOLD){
-    leftIndicator.on();  
-  } else {
-    leftIndicator.off();  
-  }
+  const float microsecondsToInches = 0.0135039;
 
-  if (rightDistance <= INDICATOR_THRESHOLD){
-    rightIndicator.on();  
-  } else {
-    rightIndicator.off();  
-  }
+  float leftDistance = leftDuration * microsecondsToInches / 2.0;
+  float rightDistance = rightDuration * microsecondsToInches / 2.0;
+  
+  leftIndicator.set(leftDistance <= INDICATOR_THRESHOLD);
+  rightIndicator.set(rightDistance <= INDICATOR_THRESHOLD);
+
+  
+  Serial.print("Left: ");
+  Serial.print(leftDistance);
+  Serial.print(" inches, ");
+
+  Serial.print("Right: ");
+  Serial.print(rightDistance);
+  Serial.println(" inches, ");
+
+  delay(20);  
 }
