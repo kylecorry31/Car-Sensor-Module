@@ -30,5 +30,13 @@ public:
     unsigned long duration = pulseIn(_echo, HIGH);
     return (duration * INCHES_PER_MICROSECOND) / 2.0f;
   }
+
+  float average_distance(int readings){
+    float dist = 0;
+    for (int i = 0; i < readings; i++){
+      dist += distance();  
+    }
+    return dist / readings;
+  }
   
 };
