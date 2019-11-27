@@ -1,5 +1,3 @@
-#include "UltrasonicSensor.h"
-#include "ProximitySensor.h"
 #include "LED.h"
 #include <NewPing.h>
 
@@ -9,6 +7,9 @@
 #define RIGHT_ECHO_PIN 9
 #define LEFT_LED_PIN 5
 #define RIGHT_LED_PIN 6
+#define BUZZER_PIN 4
+#define THERMISTER_PIN A0
+#include <NewTone.h>
 
 #define INDICATOR_THRESHOLD (12.0f * 5.0f)
 
@@ -20,9 +21,48 @@ LED rightIndicator(RIGHT_LED_PIN);
 
 void setup() {
   Serial.begin(9600);
+  pinMode(THERMISTER_PIN, INPUT);
 }
 
 void loop() {
+ parkingSensors(); 
+}
+
+float getAverageTemperature(int iterations){
+  float t = 0;
+  for (int i = 0; i < iterations; i++){
+    t += getTemperature();
+  }
+  return t / iterations;
+}
+
+float getTemperature(){
+  int Vo = analogRead(THERMISTER_PIN);
+  float R2 = 100000 * (1023.0 / (float)Vo - 1.0);
+  float logR2 = log(R2);
+  float T = (1.0 / (1.009249522e-03 + 2.378405444e-04*logR2 + 2.019202697e-07*logR2*logR2*logR2));
+  T = T - 273.15;
+  return T;
+}
+
+
+void parkingSensors(){
+  float duration = rightUltrasonic.ping_median();
+  const float speedOfSound = 0.393701 * (331.4 + 0.606 * 20/*getAverageTemperature(20)*/) / 10000.0;
+  float distance = duration * speedOfSound / 2.0;
+
+  float maxDistance = 200;
+
+  if (distance < maxDistance && distance > 0.001){
+    int buzzFreq = int((distance / maxDistance) * 1000);
+    NewTone(BUZZER_PIN, 640, buzzFreq);
+    delay(buzzFreq);
+  } else {
+    noNewTone(BUZZER_PIN);
+  }
+}
+
+void blindSpotDetection(){
   float leftDuration = leftUltrasonic.ping_median();
   float rightDuration = rightUltrasonic.ping_median();
 
