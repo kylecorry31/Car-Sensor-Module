@@ -19,8 +19,8 @@ public:
   /**
    * @return the current distance in meters
    */
-  float distance(){
-    pinMode(_triggerPin, OUTPUT);
+  double distance(){
+//    pinMode(_triggerPin, OUTPUT);
 
     // Write the trigger
     digitalWrite(_triggerPin, LOW);
@@ -30,11 +30,11 @@ public:
     digitalWrite(_triggerPin, LOW);
 
     // Read the echo
-    pinMode(_echoPin, INPUT);
-    long duration = pulseIn(_echoPin, HIGH);
+//    pinMode(_echoPin, INPUT);
+    long duration = pulseIn(_echoPin, HIGH, 26000);
 
     // Calculating the distance in meters
-    return duration * 0.00034 / 2;
+    return duration / 58.0;
   }
   
 };

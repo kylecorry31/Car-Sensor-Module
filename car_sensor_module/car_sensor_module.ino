@@ -1,17 +1,24 @@
 #include "Ultrasonic.h"
+#include "Buzzer.h"
 
 #define TRIGGER_PIN 9
 #define ECHO_PIN 9
 #define BUZZER_PIN 4
 
 #define NUM_SAMPLES 5
-#define METERS_TO_INCHES 39.3701
-#define INDICATOR_THRESHOLD (12.0f * 5.0f)
+#define CENTIMETERS_TO_INCHES 0.393701
+
+#define BUZZER_ON_DURATION 500
+#define DEFAULT_BUZZER_OFF_DURATION 1000
+#define BUZZER_FREQUENCY 640
 
 Ultrasonic ultrasonic(TRIGGER_PIN, ECHO_PIN);
+Buzzer buzzer(BUZZER_PIN, BUZZER_FREQUENCY, BUZZER_ON_DURATION, DEFAULT_BUZZER_OFF_DURATION);
 
 void setup() {
+  Serial.begin(9600);
 }
+
 
 void loop() {
  parkingSensors(); 
@@ -20,21 +27,20 @@ void loop() {
 
 void parkingSensors(){
 
-  float distance = 0;
-  for (int i = 0; i < NUM_SAMPLES; i++){
-      distance += ultrasonic.distance();
-  }
-  distance /= NUM_SAMPLES;
+  double distance = ultrasonic.distance();
+  distance *= CENTIMETERS_TO_INCHES;
 
-  distance *= METERS_TO_INCHES;
+  Serial.println(distance);
 
-  float maxDistance = 200;
+  float maxDistance = 100;
 
   if (distance < maxDistance && distance > 0.001){
-    int buzzFreq = int((distance / maxDistance) * 1000);
-    tone(BUZZER_PIN, 640);
-    delay(buzzFreq);
+    buzzer.setOffDuration(long((distance / maxDistance) * 1000));
+    buzzer.on();
   } else {
-    noTone(BUZZER_PIN);
+    buzzer.off();
   }
+
+  delay(50);
+
 }
