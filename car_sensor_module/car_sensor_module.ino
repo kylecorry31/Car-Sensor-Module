@@ -1,46 +1,51 @@
 #include "Ultrasonic.h"
 #include "Buzzer.h"
+#include "CarModule.H"
+#include "BackupSensorModule.h"
 
+// Pins
 #define TRIGGER_PIN 9
-#define ECHO_PIN 9
-#define BUZZER_PIN 4
+#define ECHO_PIN 8
+#define BUZZER_PIN 11
 
-#define NUM_SAMPLES 5
-#define CENTIMETERS_TO_INCHES 0.393701
+#define LOOP_DELAY_MS 50
 
-#define BUZZER_ON_DURATION 500
+#define NUM_MODULES 1
+
+// Create the backup sensor
+#define BUZZER_ON_DURATION 200
 #define DEFAULT_BUZZER_OFF_DURATION 1000
 #define BUZZER_FREQUENCY 640
 
 Ultrasonic ultrasonic(TRIGGER_PIN, ECHO_PIN);
 Buzzer buzzer(BUZZER_PIN, BUZZER_FREQUENCY, BUZZER_ON_DURATION, DEFAULT_BUZZER_OFF_DURATION);
+BackupSensorModule backupSensors(&ultrasonic, &buzzer);
 
-void setup() {
+// Install the car modules
+CarModule *const modules[NUM_MODULES] = { &backupSensors };
+
+void setup()
+{
   Serial.begin(9600);
-}
-
-
-void loop() {
- parkingSensors(); 
-}
-
-
-void parkingSensors(){
-
-  double distance = ultrasonic.distance();
-  distance *= CENTIMETERS_TO_INCHES;
-
-  Serial.println(distance);
-
-  float maxDistance = 100;
-
-  if (distance < maxDistance && distance > 0.001){
-    buzzer.setOffDuration(long((distance / maxDistance) * 1000));
-    buzzer.on();
-  } else {
-    buzzer.off();
+  for (int i = 0; i < NUM_MODULES; i++)
+  {
+    modules[i]->initialize();
   }
+}
 
-  delay(50);
+void loop()
+{
+  long startTime = millis();
+  for (int i = 0; i < NUM_MODULES; i++)
+  {
+    modules[i]->update();
+  }
+  delay(50);//getLoopDelay(startTime));
+}
 
+
+long getLoopDelay(long startTime)
+{
+  long dt = millis() - startTime;
+  return min(LOOP_DELAY_MS - dt, LOOP_DELAY_MS);
 }

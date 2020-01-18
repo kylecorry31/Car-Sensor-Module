@@ -45,6 +45,11 @@ private:
       return false;  
     }
 
+    if (_offDuration == 0)
+    {
+      return false;
+    }
+
     return millis() - _timer >= _onDuration;
   }
 
@@ -73,6 +78,7 @@ public:
     if (!_isEnabled)
     {
       turnOff();
+      return;
     }
 
     if (shouldTurnOff())
