@@ -2,7 +2,7 @@
 #define BACKUP_SENSOR_CAR_MODULE_H
 
 #include "CarModule.H"
-#include <SimpleKalmanFilter.h>
+#include "KalmanFilter.h"
 
 class BackupSensorModule : public CarModule
 {
@@ -13,7 +13,7 @@ private:
   Buzzer* _buzzer;
   double _distanceEstimate;
   double _distanceEstimate2;
-  SimpleKalmanFilter* filter;
+  KalmanFilter* filter;
 
   bool outOfBounds = false;
 
@@ -21,18 +21,18 @@ private:
   {
     double distance = _ultrasonic->getDistanceIn();
 
-    if (distance < 8 || distance > 115)
+    if (distance == 0)
     {
       // Unable to get reading
       return;
     }
 
-    _distanceEstimate = filter->updateEstimate((float) distance);
+    _distanceEstimate = filter->filter((float) distance);
 
-//    Serial.print(distance,3);
-//    Serial.print(",");
-//    Serial.print(_distanceEstimate,3);
-//    Serial.println();
+    Serial.print(distance,3);
+    Serial.print(",");
+    Serial.print(_distanceEstimate,3);
+    Serial.println();
   }
 
 public:
@@ -42,7 +42,7 @@ public:
     _ultrasonic = ultrasonic;
     _buzzer = buzzer;
     _distanceEstimate = 0;
-    filter = new SimpleKalmanFilter(10, 10, 0.1);
+    filter = new KalmanFilter(0.4, 60, 60, 0.1);
   }
 
   ~BackupSensorModule()
@@ -65,8 +65,6 @@ public:
       double maxDist = 90;
 
       double normalDistance = (_distanceEstimate - minDist) / (maxDist - minDist);
-
-      Serial.println(normalDistance);
 
       if (normalDistance < 0.05)
       {

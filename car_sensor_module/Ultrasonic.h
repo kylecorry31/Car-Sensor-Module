@@ -31,14 +31,14 @@ public:
     digitalWrite(_triggerPin, LOW);
     delayMicroseconds(2);
     digitalWrite(_triggerPin, HIGH);
-    delayMicroseconds(10);
+    delayMicroseconds(20);
     digitalWrite(_triggerPin, LOW);
 
     // Read the echo
     long duration = pulseIn(_echoPin, HIGH, 38000); 
 
     // Calculating the distance in centimeters
-    return duration/58;
+    return duration * 0.034 / 2;
   }
   
 };
