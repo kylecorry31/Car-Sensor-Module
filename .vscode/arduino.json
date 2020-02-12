@@ -1,0 +1,5 @@
+{
+    "sketch": "car-backup-sensor.ino",
+    "board": "arduino:avr:nano",
+    "configuration": "cpu=atmega328"
+}
