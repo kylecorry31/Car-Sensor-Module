@@ -18,7 +18,7 @@ Disclaimer: Do not rely on this as a safety measure for your car. I am not respo
 
 ## Instructions
 1. Assemble the circuit shown below.
-![Schematic](/assets/images/posts/car-backup-sensor/schematic.png)
+![Schematic](assets/schematic.png)
 
 2. Upload this sketch to the Arduino after installing the required library.
 
